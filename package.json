@@ -1,0 +1,15 @@
+{
+  "name": "fiyat-paneli-pro",
+  "version": "1.0.0",
+  "description": "Profesyonel fiyat paneli",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "start": "serve",
+    "build": ""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+

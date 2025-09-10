@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Altın Fiyatları</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #d4af37;
+            --primary-dark: #b8941f;
+            --secondary-color: #1a1a1a;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --text-light: #666666;
+            --border-radius: 16px;
+            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); color: var(--text-color); padding: 20px; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 20px; background: var(--card-color); border-radius: var(--border-radius); box-shadow: var(--box-shadow); }
+        .logo-container { display: flex; align-items: center; gap: 15px; }
+        .logo { width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold; }
+        .logo-text { font-size: 28px; font-weight: 800; color: var(--secondary-color); }
+        .logo-text span { color: var(--primary-color); }
+        .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+        .datetime { text-align: right; font-size: 16px; color: var(--text-light); font-weight: 500; }
+        .refresh-container { display: flex; align-items: center; gap: 15px; }
+        .refresh-info { font-size: 14px; color: var(--text-light); background: rgba(0, 0, 0, 0.05); padding: 6px 12px; border-radius: 20px; }
+        .refresh-button { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none; padding: 12px 20px; border-radius: var(--border-radius); cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: var(--transition); box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); }
+        .refresh-button:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
+        .refresh-button:active { transform: translateY(0); }
+        .gold-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; margin-bottom: 30px; }
+        .gold-card { background: var(--card-color); border-radius: var(--border-radius); padding: 25px; box-shadow: var(--box-shadow); transition: var(--transition); position: relative; overflow: hidden; border-left: 5px solid var(--primary-color); }
+        .gold-card:hover { transform: translateY(-8px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); }
+        .gold-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .gold-name { font-size: 18px; font-weight: 600; color: var(--secondary-color); }
+        .gold-icon { width: 45px; height: 45px; background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(184, 148, 31, 0.15) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 18px; }
+        .gold-price { font-size: 26px; font-weight: 700; color: var(--primary-color); margin-bottom: 5px; letter-spacing: 0.5px; }
+        .price-label { font-size: 14px; color: var(--text-light); margin-bottom: 3px; font-weight: 500; }
+        .settings-panel { background: var(--card-color); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--box-shadow); margin-top: 20px; }
+        .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; cursor: pointer; padding: 10px; border-radius: 10px; background: rgba(0, 0, 0, 0.02); transition: var(--transition); }
+        .settings-header:hover { background: rgba(0, 0, 0, 0.05); }
+        .settings-title { font-size: 18px; font-weight: 600; color: var(--secondary-color); display: flex; align-items: center; gap: 10px; }
+        .settings-title i { color: var(--primary-color); }
+        .settings-content { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 15px; max-height: 0; overflow: hidden; transition: var(--transition); }
+        .settings-content.active { max-height: 1000px; /* Yeterince büyük bir değer */ }
+        .multiplier-input { display: flex; flex-direction: column; }
+        .multiplier-input label { font-size: 14px; margin-bottom: 8px; color: var(--text-light); font-weight: 500; }
+        .multiplier-input input { padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 16px; transition: var(--transition); }
+        .multiplier-input input:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); }
+        .save-button { background: var(--secondary-color); color: white; border: none; padding: 14px 28px; border-radius: var(--border-radius); cursor: pointer; font-weight: 600; margin-top: 20px; transition: var(--transition); display: flex; align-items: center; gap: 8px; }
+        .save-button:hover { background: #333; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); }
+        footer { text-align: center; margin-top: 40px; padding-top: 20px; color: var(--text-light); font-size: 14px; border-top: 1px solid rgba(0, 0, 0, 0.1); }
+        .notification { position: fixed; top: 20px; right: 20px; padding: 15px 25px; background: #4caf50; color: white; border-radius: var(--border-radius); box-shadow: var(--box-shadow); z-index: 1000; opacity: 0; transform: translateY(-20px); transition: var(--transition); display: flex; align-items: center; gap: 10px; }
+        .notification.show { opacity: 1; transform: translateY(0); }
+        .counter { font-weight: 700; color: var(--primary-color); }
+        .loading { display: flex; justify-content: center; align-items: center; height: 200px; font-size: 18px; color: var(--text-light); }
+        .loading i { margin-right: 10px; color: var(--primary-color); }
+        @media (max-width: 768px) {
+            header { flex-direction: column; text-align: center; gap: 20px; }
+            .header-right { align-items: center; }
+            .refresh-container { flex-direction: column; gap: 10px; }
+            .gold-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+            .settings-content { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <div class="logo"><i class="fas fa-coins"></i></div>
+                <div class="logo-text">Altın <span>Fiyatları</span></div>
+            </div>
+            <div class="header-right">
+                <div class="datetime">
+                    <div id="current-date"></div>
+                    <div id="current-time"></div>
+                </div>
+                <div class="refresh-container">
+                    <div class="refresh-info">Yenilenme: <span id="refresh-counter" class="counter">60</span> saniye</div>
+                    <button class="refresh-button" id="refresh-button">
+                        <i class="fas fa-sync-alt"></i> Yenile
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="gold-grid" id="gold-grid">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Fiyatlar yükleniyor...
+            </div>
+        </div>
+
+        <div class="settings-panel">
+            <div class="settings-header" id="settings-toggle">
+                <div class="settings-title">
+                    <i class="fas fa-sliders-h"></i> Fiyat Çarpan Ayarları
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            
+            <div class="settings-content" id="settings-content">
+                <!-- Çarpan inputları JavaScript ile buraya eklenecek -->
+            </div>
+            
+            <button class="save-button" id="save-button">
+                <i class="fas fa-save"></i> Çarpanları Kaydet
+            </button>
+        </div>
+
+        <footer>
+            <p>© 2025 Altın Fiyatları - Tüm hakları saklıdır</p>
+        </footer>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span>Çarpanlar başarıyla kaydedildi!</span>
+    </div>
+
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').textContent = now.toLocaleDateString('tr-TR', options);
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('tr-TR');
+        }
+
+        let counter = 60;
+        function updateCounter() {
+            counter--;
+            document.getElementById('refresh-counter').textContent = counter;
+            if (counter <= 0) {
+                counter = 60;
+                updateAllData();
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.innerHTML = `<i class="fas fa-check-circle"></i> <span>${message}</span>`;
+            notification.classList.add('show');
+            setTimeout(() => { notification.classList.remove('show'); }, 3000);
+        }
+
+        const goldTypes = [
+            { id: 'gram-altin', name: 'Gram Altın', apiKey: 'GA', buyMultiplier: 1, sellMultiplier: 1 },
+            { id: '22-ayar-altin', name: '22 Ayar Altın', apiKey: '22A', buyMultiplier: 1, sellMultiplier: 1 },
+            { id: '18-ayar-altin', name: '18 Ayar Altın', apiKey: '18A', buyMultiplier: 1, sellMultiplier: 1 },
+            { id: '14-ayar-altin', name: '14 Ayar Altın', apiKey: '14A', buyMultiplier: 1, sellMultiplier: 1 },
+            { id: 'ceyrek-altin', name: 'Çeyrek Altın', apiKey: 'CK', buyMultiplier: 1, sellMultiplier: 1 },
+            { id: 'yarim-altin', name: 'Yarım Altın', apiKey: 'CY', buyMultiplier: 1, sellMultiplier: 1 },
+            { id: 'tam-altin', name: 'Tam Altın', apiKey: 'T', buyMultiplier: 1, sellMultiplier: 1 },
+            { id: 'ikibesli-altin', name: '2,5\'lu Altın', apiKey: 'C25', buyMultiplier: 1, sellMultiplier: 1 },
+            { id: 'ata-altin', name: 'Ata Altın', apiKey: 'ATA', buyMultiplier: 1, sellMultiplier: 1 }
+        ];
+        
+        function loadMultipliers() {
+            const savedMultipliers = localStorage.getItem('goldMultipliers');
+            if (savedMultipliers) {
+                const multipliers = JSON.parse(savedMultipliers);
+                goldTypes.forEach(gold => {
+                    if (multipliers[gold.id]) {
+                        gold.buyMultiplier = multipliers[gold.id].buy;
+                        gold.sellMultiplier = multipliers[gold.id].sell;
+                    }
+                });
+            }
+            renderMultiplierInputs();
+        }
+
+        function renderMultiplierInputs() {
+            const settingsContent = document.getElementById('settings-content');
+            settingsContent.innerHTML = '';
+            goldTypes.forEach(gold => {
+                const buyInput = document.createElement('div');
+                buyInput.className = 'multiplier-input';
+                buyInput.innerHTML = `<label>${gold.name} Alış Çarpanı</label><input type="number" step="0.001" value="${gold.buyMultiplier}" id="${gold.id}-buy" data-type="${gold.id}" data-field="buy">`;
+                const sellInput = document.createElement('div');
+                sellInput.className = 'multiplier-input';
+                sellInput.innerHTML = `<label>${gold.name} Satış Çarpanı</label><input type="number" step="0.001" value="${gold.sellMultiplier}" id="${gold.id}-sell" data-type="${gold.id}" data-field="sell">`;
+                settingsContent.appendChild(buyInput);
+                settingsContent.appendChild(sellInput);
+            });
+        }
+
+        function renderGoldCards(prices) {
+            const goldGrid = document.getElementById('gold-grid');
+            if (goldGrid.querySelector('.loading')) {
+                goldGrid.innerHTML = '';
+            }
+            goldTypes.forEach(gold => {
+                const goldPrice = prices[gold.id] || { buy: 0, sell: 0 };
+                const calculatedBuy = (goldPrice.buy * gold.buyMultiplier).toFixed(2);
+                const calculatedSell = (goldPrice.sell * gold.sellMultiplier).toFixed(2);
+                let card = document.getElementById(`card-${gold.id}`);
+                if (!card) {
+                    card = document.createElement('div');
+                    card.className = 'gold-card';
+                    card.id = `card-${gold.id}`;
+                    goldGrid.appendChild(card);
+                }
+                card.innerHTML = `
+                    <div class="gold-card-header">
+                        <div class="gold-name">${gold.name}</div>
+                        <div class="gold-icon"><i class="fas fa-coins"></i></div>
+                    </div>
+                    <div class="price-label">Alış (TL)</div>
+                    <div class="gold-price">${calculatedBuy} ₺</div>
+                    <div class="price-label">Satış (TL)</div>
+                    <div class="gold-price">${calculatedSell} ₺</div>
+                `;
+            });
+        }
+
+        async function fetchGoldPrices() {
+            try {
+                // *** ÖNEMLİ DEĞİŞİKLİK: Sunucuya bağlanmak için bu satırı kullanıyoruz ***
+                const response = await fetch('/api/prices'); 
+                if (!response.ok) {
+                    throw new Error('API yanıt vermedi');
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Fiyatlar alınırken hata oluştu:', error);
+                document.getElementById('gold-grid').innerHTML = '<div class="loading">Fiyatlar alınamadı. Lütfen daha sonra tekrar deneyin.</div>';
+                return null;
+            }
+        }
+
+        async function updateAllData() {
+            try {
+                const prices = await fetchGoldPrices();
+                if (prices) {
+                    renderGoldCards(prices);
+                    updateDateTime();
+                    counter = 60;
+                    document.getElementById('refresh-counter').textContent = counter;
+                }
+            } catch (error) {
+                console.error('Fiyatlar güncellenirken hata oluştu:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            loadMultipliers();
+            updateAllData();
+            setInterval(updateCounter, 1000);
+            document.getElementById('refresh-button').addEventListener('click', updateAllData);
+            document.getElementById('settings-toggle').addEventListener('click', function() {
+                const content = document.getElementById('settings-content');
+                const icon = this.querySelector('.fa-chevron-down, .fa-chevron-up');
+                content.classList.toggle('active');
+                if (content.classList.contains('active')) {
+                    icon.className = 'fas fa-chevron-up';
+                } else {
+                    icon.className = 'fas fa-chevron-down';
+                }
+            });
+            document.getElementById('save-button').addEventListener('click', function() {
+                const multipliers = {};
+                document.querySelectorAll('.multiplier-input input').forEach(input => {
+                    const type = input.dataset.type;
+                    const field = input.dataset.field;
+                    const value = parseFloat(input.value);
+                    if (!multipliers[type]) { multipliers[type] = {}; }
+                    multipliers[type][field] = value;
+                    const gold = goldTypes.find(g => g.id === type);
+                    if (gold) {
+                        gold[field + 'Multiplier'] = value;
+                    }
+                });
+                localStorage.setItem('goldMultipliers', JSON.stringify(multipliers));
+                showNotification('Çarpanlar başarıyla kaydedildi!');
+                updateAllData();
+            });
+        });
+    </script>
+</body>
+</html>
+
